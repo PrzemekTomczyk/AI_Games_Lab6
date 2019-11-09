@@ -4,16 +4,27 @@
 
 class GridTile
 {
+	enum class TileType
+	{
+		Start,
+		Goal,
+		Obstacle,
+		None,
+		Path
+	};
 public:
 	GridTile(sf::Vector2f t_pos, sf::Font& t_font, sf::Vector2f t_size);
 	~GridTile();
 	void init(int t_cost, int t_rgb[3]);
-	void render(sf::RenderWindow& t_window);
+	void render(sf::RenderWindow& t_window, bool t_showCost);
 	int getCost();
 	void setToObstacle();
-	void setToStart();
+	void setToStart(int t_cost);
+	void setToGoal();
+	void reset();
 
 private:
+	TileType m_type;
 	sf::Vector2f m_pos;
 	int m_rgb[3]{ 255, 255, 255};
 	int m_cost;
@@ -21,6 +32,6 @@ private:
 	sf::RectangleShape m_tile;
 
 	sf::Font& m_font;
-	sf::Text m_text;
+	sf::Text m_costText;
 };
 

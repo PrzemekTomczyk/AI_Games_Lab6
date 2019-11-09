@@ -99,14 +99,8 @@ void Game::update(sf::Time t_deltaTime)
 		m_window.close();
 	}
 
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
-	{
-		m_grid.handleLeftClick(sf::Mouse::getPosition(m_window));
-	}
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
-	{
-		m_grid.handleRightClick(sf::Mouse::getPosition(m_window));
-	}
+	m_grid.update();
+
 }
 
 /// <summary>
@@ -116,7 +110,7 @@ void Game::render()
 {
 	m_window.clear(sf::Color::Black);
 
-	m_grid.render(m_window);
+	m_grid.render();
 
 	m_window.display();
 }
