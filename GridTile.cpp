@@ -91,6 +91,11 @@ int GridTile::getCost()
 	return m_cost;
 }
 
+void GridTile::setCost(int t_cost)
+{
+	m_cost = t_cost;
+}
+
 void GridTile::setToObstacle()
 {
 	if (m_type != TileType::Goal && m_type != TileType::Start)
@@ -125,4 +130,19 @@ void GridTile::reset()
 	//reset type
 	m_type = TileType::None;
 
+}
+
+sf::Vector2f GridTile::getPos()
+{
+	return m_pos;
+}
+
+float GridTile::getDiagnal()
+{
+	return std::sqrt(std::pow(m_tile.getSize().x, 2) + std::pow(m_tile.getSize().y, 2));
+}
+
+GridTile::TileType GridTile::getType()
+{
+	return m_type;
 }
