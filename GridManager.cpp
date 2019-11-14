@@ -51,8 +51,11 @@ void GridManager::render()
 
 void GridManager::handleInput()
 {
-	handleKeyboard();
-	handleMouse();
+	if (m_window.hasFocus())
+	{
+		handleKeyboard();
+		handleMouse();
+	}
 }
 
 void GridManager::handleKeyboard()
@@ -153,6 +156,48 @@ void GridManager::handleLeftClick(sf::Vector2i t_mousePos)
 	}	
 	m_grid[tileIndex].setToGoal();
 	m_goalIndex = tileIndex;
+
+
+	//DRAW VECTOR FIELD IN CIRCLES
+	for (int i = 0; i < m_grid.size(); i++)
+	{
+		if (m_grid[i].getType() == GridTile::TileType::Goal)
+		{
+			continue;
+		}
+		else if (m_grid[i].getType() == GridTile::TileType::None || m_grid[i].getType() == GridTile::TileType::Start)
+		{
+			sf::Vector2f vecToGoal = m_grid[m_goalIndex].getPos() - m_grid[i].getPos();
+			int costToGoal;
+			if (std::abs(vecToGoal.x) >= std::abs(vecToGoal.y))
+			{
+				costToGoal = vecToGoal.x / m_tileSize.x;
+			}
+			else
+			{
+				costToGoal = vecToGoal.y / m_tileSize.y;
+			}
+			m_grid[i].setCost(std::abs(costToGoal));
+		}
+	}
+
+
+
+	//DRAW VECTOR FIELD IN CIRCLES
+	//for (int i = 0; i < m_grid.size(); i++)
+	//{
+	//	if (m_grid[i].getType() == GridTile::TileType::Goal)
+	//	{
+	//		continue;
+	//	}
+	//	else if (m_grid[i].getType() == GridTile::TileType::None || m_grid[i].getType() == GridTile::TileType::Start)
+	//	{
+	//		sf::Vector2f vecToGoal = m_grid[m_goalIndex].getPos() - m_grid[i].getPos();
+	//		float distToGoal = thor::length(vecToGoal);
+	//		int cost = distToGoal / m_grid[i].getDiagnal() + 1;
+	//		m_grid[i].setCost(cost);
+	//	}
+	//}
 }
 
 void GridManager::handleRightClick(sf::Vector2i t_mousePos)
@@ -179,9 +224,26 @@ void GridManager::handleRightClick(sf::Vector2i t_mousePos)
 
 	int tileIndex = row + (col * TILES_PER_COL);
 
-	//change 0 to the cost of the start node after calculations
-	m_grid[tileIndex].setToStart(0);
-	m_startIndex = tileIndex;
+	if (m_grid[tileIndex].getType() != GridTile::TileType::Goal)
+	{
+		//change 0 to the cost of the start node after calculations
+		if (m_grid[tileIndex].getType() == GridTile::TileType::Obstacle)
+		{
+			sf::Vector2f vecToGoal = m_grid[m_goalIndex].getPos() - m_grid[tileIndex].getPos();
+			int costToGoal;
+			if (std::abs(vecToGoal.x) >= std::abs(vecToGoal.y))
+			{
+				costToGoal = vecToGoal.x / m_tileSize.x;
+			}
+			else
+			{
+				costToGoal = vecToGoal.y / m_tileSize.y;
+			}
+			m_grid[tileIndex].setCost(std::abs(costToGoal));
+		}
+		m_grid[tileIndex].setToStart(m_grid[tileIndex].getCost());
+		m_startIndex = tileIndex;
+	}
 }
 
 void GridManager::handleMiddleClick(sf::Vector2i t_mousePos)

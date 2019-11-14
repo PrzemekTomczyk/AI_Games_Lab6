@@ -4,6 +4,7 @@
 
 class GridTile
 {
+public:
 	enum class TileType
 	{
 		Start,
@@ -24,11 +25,15 @@ public:
 	void init(int t_cost, int t_rgb[3]);
 	void render(sf::RenderWindow& t_window, bool t_showCost);
 	int getCost();
+	void setCost(int t_cost);
 	void setToObstacle();
 	void setToStart(int t_cost);
 	void setToGoal();
 	void reset();
 	void resize(sf::Vector2f t_newSize, sf::Vector2f t_newPos);
+	sf::Vector2f getPos();
+	float getDiagnal();
+	TileType getType();
 
 private:
 	TileType m_type;

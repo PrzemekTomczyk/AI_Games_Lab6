@@ -60,11 +60,17 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost)
 		m_rgb[2] = 0;
 		break;
 	case GridTile::TileType::None:
+	{
 		m_costText.setFillColor(sf::Color::Black);
 		m_rgb[0] = 0;
 		m_rgb[1] = 0;
-		m_rgb[2] = 255;
+		m_rgb[2] = 255 - 255 * m_cost / 50;
+		if (m_cost == -1)
+		{
+			m_rgb[2] = 255;
+		}
 		break;
+	}
 	case GridTile::TileType::Path:
 		m_costText.setFillColor(sf::Color::Black);
 		m_rgb[0] = 255;
@@ -89,6 +95,11 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost)
 int GridTile::getCost()
 {
 	return m_cost;
+}
+
+void GridTile::setCost(int t_cost)
+{
+	m_cost = t_cost;
 }
 
 void GridTile::setToObstacle()
@@ -132,4 +143,19 @@ void GridTile::resize(sf::Vector2f t_newSize, sf::Vector2f t_newPos)
 {
 	m_tile.setSize(t_newSize);
 	m_costText.setPosition(t_newPos);
+}
+
+sf::Vector2f GridTile::getPos()
+{
+	return m_pos;
+}
+
+float GridTile::getDiagnal()
+{
+	return std::sqrt(std::pow(m_tile.getSize().x, 2) + std::pow(m_tile.getSize().y, 2));
+}
+
+GridTile::TileType GridTile::getType()
+{
+	return m_type;
 }
