@@ -60,11 +60,17 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost)
 		m_rgb[2] = 0;
 		break;
 	case GridTile::TileType::None:
+	{
 		m_costText.setFillColor(sf::Color::Black);
 		m_rgb[0] = 0;
 		m_rgb[1] = 0;
-		m_rgb[2] = 255;
+		m_rgb[2] = 255 - 255 * m_cost / 50;
+		if (m_cost == -1)
+		{
+			m_rgb[2] = 255;
+		}
 		break;
+	}
 	case GridTile::TileType::Path:
 		m_costText.setFillColor(sf::Color::Black);
 		m_rgb[0] = 255;
