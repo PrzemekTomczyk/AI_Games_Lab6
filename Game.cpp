@@ -10,7 +10,7 @@
 /// load and setup thne image
 /// </summary>
 Game::Game() :
-	m_window{ sf::VideoMode{ 1000U, 1000U, 32U }, "SFML Game" },
+	m_window{ sf::VideoMode{ sf::VideoMode::getDesktopMode().height - 250, sf::VideoMode::getDesktopMode().height - 250, 32U }, "SFML Game" },
 	m_exitGame{false}, //when true game will exit
 	m_grid(m_font, m_window)
 {
@@ -72,6 +72,14 @@ void Game::processEvents()
 		{
 			processKeys(newEvent);
 		}
+		if (sf::Event::Resized == newEvent.type)
+		{
+			m_resized = true;
+		}
+		else
+		{
+			m_resized = false;
+		}
 	}
 }
 
@@ -99,7 +107,7 @@ void Game::update(sf::Time t_deltaTime)
 		m_window.close();
 	}
 
-	m_grid.update();
+	m_grid.update(m_resized);
 
 }
 

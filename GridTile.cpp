@@ -118,11 +118,18 @@ void GridTile::reset()
 	m_cost = -1;
 
 	//reset colour
-	m_rgb[0] = 0;
-	m_rgb[1] = 0;
-	m_rgb[2] = 255;
+	for (int i = 0; i < 3; i++)
+	{
+		m_rgb[i] = BLUE[i];
+	}
 
 	//reset type
 	m_type = TileType::None;
 
+}
+
+void GridTile::resize(sf::Vector2f t_newSize, sf::Vector2f t_newPos)
+{
+	m_tile.setSize(t_newSize);
+	m_costText.setPosition(t_newPos);
 }

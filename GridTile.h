@@ -12,6 +12,12 @@ class GridTile
 		None,
 		Path
 	};
+
+	const int RED[3]{ 255, 0, 0 };
+	const int GREEN[3]{ 0, 255, 0 };
+	const int BLUE[3]{ 0, 0, 255 };
+
+
 public:
 	GridTile(sf::Vector2f t_pos, sf::Font& t_font, sf::Vector2f t_size);
 	~GridTile();
@@ -22,6 +28,7 @@ public:
 	void setToStart(int t_cost);
 	void setToGoal();
 	void reset();
+	void resize(sf::Vector2f t_newSize, sf::Vector2f t_newPos);
 
 private:
 	TileType m_type;

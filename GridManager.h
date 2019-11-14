@@ -8,7 +8,7 @@ public:
 	GridManager(sf::Font& t_font, sf::RenderWindow& t_window);
 	~GridManager();
 	void render();
-	void update();
+	void update(bool t_resized);
 
 private:
 	void handleInput();
@@ -38,11 +38,12 @@ private:
 	//bools
 	bool m_leftBtn = false;
 	bool m_rightBtn = false;
-	bool m_middleBtn = false;
 	bool m_showTooltips = false;
 	bool m_numOnePressed = false;
 	bool m_showCost = false;
 	bool m_numTwoPressed = false;
+	bool m_resized = false;
+	bool m_gridUpdateRequired = false;
 
 	//ints for indexes
 	int m_goalIndex = -1;

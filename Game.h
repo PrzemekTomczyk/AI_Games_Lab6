@@ -30,6 +30,7 @@ private:
 	sf::RenderWindow m_window; // main SFML window
 	sf::Font m_font; // font used by message
 	bool m_exitGame; // control exiting game
+	bool m_resized = false;
 
 	GridManager m_grid;
 

@@ -112,15 +112,15 @@ void GridManager::handleMouse()
 	}
 
 	//handle mmb
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Middle)/* && !m_middleBtn*/)
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Middle))
 	{
-		//m_middleBtn = true;
+		m_gridUpdateRequired = true;
 		handleMiddleClick(sf::Mouse::getPosition(m_window));
 	}
-	//else if (!sf::Mouse::isButtonPressed(sf::Mouse::Button::Middle))
-	//{
-	//	m_middleBtn = false;
-	//}
+	else if (!sf::Mouse::isButtonPressed(sf::Mouse::Button::Middle) && m_gridUpdateRequired)
+	{
+		m_gridUpdateRequired = false;
+	}
 }
 
 void GridManager::handleLeftClick(sf::Vector2i t_mousePos)
@@ -223,7 +223,28 @@ void GridManager::resetGrid()
 	}
 }
 
-void GridManager::update()
+void GridManager::update(bool t_resized)
 {
+	if (t_resized)
+	{
+		m_tileSize.x = m_window.getSize().x / 50.0f;
+		m_tileSize.y = m_window.getSize().y / 50.0f;
+
+		int rows = 0;
+		int cols = 0;
+		for (int i = 0; i < m_grid.size(); i++)
+		{
+			sf::Vector2f newPos(rows * m_tileSize.x + (m_tileSize.x / 2.0), cols * m_tileSize.y + (m_tileSize.y / 2.0));
+
+
+			m_grid[i].resize(m_tileSize, newPos);
+			
+			rows++;
+			if (rows % 10 == 0)
+			{
+				cols++;
+			}
+		}
+	}
 	handleInput();
 }
