@@ -158,7 +158,7 @@ void GridManager::handleLeftClick(sf::Vector2i t_mousePos)
 	m_goalIndex = tileIndex;
 
 
-	//DRAW VECTOR FIELD IN CIRCLES
+	//DRAW VECTOR FIELD IN SQUARE
 	for (int i = 0; i < m_grid.size(); i++)
 	{
 		if (m_grid[i].getType() == GridTile::TileType::Goal)
