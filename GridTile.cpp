@@ -17,7 +17,7 @@ GridTile::GridTile(sf::Vector2f t_pos, sf::Font& t_font, sf::Vector2f t_size) :
 	//setup tooltip text
 	m_costText.setFont(m_font);
 	m_costText.setFillColor(sf::Color::Black);
-	m_costText.setCharacterSize(10);
+	m_costText.setCharacterSize(t_size.y * 0.5);
 	m_costText.setString(std::to_string(m_cost));
 	m_costText.setOrigin(m_costText.getGlobalBounds().width / 2.0f, m_costText.getGlobalBounds().height / 2.0f);
 	m_costText.setPosition(m_pos);
@@ -104,11 +104,8 @@ void GridTile::setCost(int t_cost)
 
 void GridTile::setToObstacle()
 {
-	if (m_type != TileType::Goal && m_type != TileType::Start)
-	{
-		m_type = TileType::Obstacle;
-		m_cost = 999;
-	}
+	m_type = TileType::Obstacle;
+	m_cost = 999;
 }
 
 void GridTile::setToStart(int t_cost)
@@ -136,13 +133,6 @@ void GridTile::reset()
 
 	//reset type
 	m_type = TileType::None;
-
-}
-
-void GridTile::resize(sf::Vector2f t_newSize, sf::Vector2f t_newPos)
-{
-	m_tile.setSize(t_newSize);
-	m_costText.setPosition(t_newPos);
 }
 
 sf::Vector2f GridTile::getPos()

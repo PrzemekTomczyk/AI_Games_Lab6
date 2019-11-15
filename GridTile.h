@@ -30,7 +30,6 @@ public:
 	void setToStart(int t_cost);
 	void setToGoal();
 	void reset();
-	void resize(sf::Vector2f t_newSize, sf::Vector2f t_newPos);
 	sf::Vector2f getPos();
 	float getDiagnal();
 	TileType getType();

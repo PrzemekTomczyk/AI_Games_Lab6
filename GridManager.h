@@ -8,7 +8,8 @@ public:
 	GridManager(sf::Font& t_font, sf::RenderWindow& t_window);
 	~GridManager();
 	void render();
-	void update(bool t_resized);
+	void update();
+	void init();
 
 private:
 	void handleInput();
@@ -18,9 +19,15 @@ private:
 	void handleRightClick(sf::Vector2i t_mousePos);
 	void handleMiddleClick(sf::Vector2i t_mousePos);
 	void resetGrid();
+	void doBrushfireCalc(int t_currentTileIndex);
+	void doBrushfireForNeighbours(std::vector<int>& t_neighbours);
+	void resetNonObstacleCosts();
 
 	//vectors
 	std::vector<GridTile> m_grid;
+	
+	std::vector<std::vector<GridTile>> m_gridTwoD;
+
 	sf::Vector2f m_tileSize;
 
 	//references
@@ -33,7 +40,7 @@ private:
 	//consts
 	const int MAX_TILES = 2500;
 	const int TILES_PER_ROW = 50;
-	const int TILES_PER_COL = 50;
+	const int NO_OF_COLS = 50;
 
 	//bools
 	bool m_leftBtn = false;
@@ -42,11 +49,11 @@ private:
 	bool m_numOnePressed = false;
 	bool m_showCost = false;
 	bool m_numTwoPressed = false;
-	bool m_resized = false;
 	bool m_gridUpdateRequired = false;
 
-	//ints for indexes
+	//ints
 	int m_goalIndex = -1;
 	int m_startIndex = -1;
+	int m_obstacleAmnt = 0;
 };
 

@@ -10,13 +10,28 @@
 /// load and setup thne image
 /// </summary>
 Game::Game() :
-	m_window{ sf::VideoMode{ sf::VideoMode::getDesktopMode().height - 250, sf::VideoMode::getDesktopMode().height - 250, 32U }, "SFML Game" },
+	//m_window{ },
 	m_exitGame{false}, //when true game will exit
 	m_grid(m_font, m_window)
 {
+	int width = sf::VideoMode::getDesktopMode().width - 250;
+	int height = sf::VideoMode::getDesktopMode().height - 250;
+	unsigned int windowSize = 0;
+
+	if (height < width)
+	{
+		windowSize = 50 * std::ceil(height / 50);
+	}
+	else
+	{
+		windowSize = 50 * std::ceil(width / 50);
+	}
+
+	m_window.create(sf::VideoMode{ windowSize, windowSize, 32U }, "SFML Game", sf::Style::Titlebar | sf::Style::Close);
+
 	setupFont(); // load font 
 
-
+	m_grid.init();
 }
 
 /// <summary>
@@ -72,14 +87,6 @@ void Game::processEvents()
 		{
 			processKeys(newEvent);
 		}
-		if (sf::Event::Resized == newEvent.type)
-		{
-			m_resized = true;
-		}
-		else
-		{
-			m_resized = false;
-		}
 	}
 }
 
@@ -107,7 +114,7 @@ void Game::update(sf::Time t_deltaTime)
 		m_window.close();
 	}
 
-	m_grid.update(m_resized);
+	m_grid.update();
 
 }
 
