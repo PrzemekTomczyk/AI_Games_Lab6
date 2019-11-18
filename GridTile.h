@@ -20,7 +20,7 @@ public:
 
 
 public:
-	GridTile(sf::Vector2f t_pos, sf::Font& t_font, sf::Vector2f t_size);
+	GridTile(sf::Vector2f t_pos, sf::Font& t_font, int& t_highestCost, sf::Vector2f t_size);
 	~GridTile();
 	void init(int t_cost, int t_rgb[3]);
 	void render(sf::RenderWindow& t_window, bool t_showCost);
@@ -30,8 +30,9 @@ public:
 	void setToStart(int t_cost);
 	void setToGoal();
 	void reset();
+	void setFlowField(sf::Vector2f t_direction);
 	sf::Vector2f getPos();
-	float getDiagnal();
+	float getDiagonal();
 	TileType getType();
 
 private:
@@ -39,6 +40,7 @@ private:
 	sf::Vector2f m_pos;
 	int m_rgb[3]{ 255, 255, 255};
 	int m_cost;
+	int& m_highestCost;
 
 	sf::RectangleShape m_tile;
 

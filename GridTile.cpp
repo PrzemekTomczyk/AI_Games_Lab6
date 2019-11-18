@@ -1,7 +1,8 @@
-#include "GridTile.h"
+﻿#include "GridTile.h"
 
-GridTile::GridTile(sf::Vector2f t_pos, sf::Font& t_font, sf::Vector2f t_size) :
+GridTile::GridTile(sf::Vector2f t_pos, sf::Font& t_font, int& t_highestCost, sf::Vector2f t_size) :
 	m_font(t_font),
+	m_highestCost(t_highestCost),
 	m_cost(-1),
 	m_pos(t_pos),
 	m_type(TileType::None)
@@ -17,7 +18,7 @@ GridTile::GridTile(sf::Vector2f t_pos, sf::Font& t_font, sf::Vector2f t_size) :
 	//setup tooltip text
 	m_costText.setFont(m_font);
 	m_costText.setFillColor(sf::Color::Black);
-	m_costText.setCharacterSize(t_size.y * 0.5);
+	m_costText.setCharacterSize(t_size.y * 0.75);
 	m_costText.setString(std::to_string(m_cost));
 	m_costText.setOrigin(m_costText.getGlobalBounds().width / 2.0f, m_costText.getGlobalBounds().height / 2.0f);
 	m_costText.setPosition(m_pos);
@@ -64,7 +65,13 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost)
 		m_costText.setFillColor(sf::Color::Black);
 		m_rgb[0] = 0;
 		m_rgb[1] = 0;
-		m_rgb[2] = 255 - 255 * m_cost / 50;
+		m_rgb[2] = 255 - 255 * m_cost / m_highestCost;
+
+		if (255.0f / m_rgb[2] >= 10.f)
+		{
+			m_costText.setFillColor(sf::Color::White);
+		}
+
 		if (m_cost == -1)
 		{
 			m_rgb[2] = 255;
@@ -85,7 +92,14 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost)
 
 	if (t_showCost)
 	{
-		m_costText.setString(std::to_string(m_cost));
+		if (m_type == GridTile::TileType::Obstacle)
+		{
+			m_costText.setString("-1");
+		}		
+		else
+		{
+			m_costText.setString(std::to_string(m_cost));
+		}
 		m_costText.setOrigin(m_costText.getGlobalBounds().width / 2.0f, m_costText.getGlobalBounds().height / 2.0f);
 		m_costText.setPosition(m_pos);
 		t_window.draw(m_costText);
@@ -105,7 +119,7 @@ void GridTile::setCost(int t_cost)
 void GridTile::setToObstacle()
 {
 	m_type = TileType::Obstacle;
-	m_cost = 999;
+	m_cost = INT_MAX;
 }
 
 void GridTile::setToStart(int t_cost)
@@ -135,14 +149,19 @@ void GridTile::reset()
 	m_type = TileType::None;
 }
 
+void GridTile::setFlowField(sf::Vector2f t_direction)
+{
+
+}
+
 sf::Vector2f GridTile::getPos()
 {
 	return m_pos;
 }
 
-float GridTile::getDiagnal()
+float GridTile::getDiagonal()
 {
-	return std::sqrt(std::pow(m_tile.getSize().x, 2) + std::pow(m_tile.getSize().y, 2));
+	return thor::length(m_tile.getSize());
 }
 
 GridTile::TileType GridTile::getType()

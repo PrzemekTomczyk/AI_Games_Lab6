@@ -26,8 +26,6 @@ private:
 	//vectors
 	std::vector<GridTile> m_grid;
 	
-	std::vector<std::vector<GridTile>> m_gridTwoD;
-
 	sf::Vector2f m_tileSize;
 
 	//references
@@ -53,7 +51,7 @@ private:
 
 	//ints
 	int m_goalIndex = -1;
-	int m_startIndex = -1;
+	int m_highestCost = -1;
 	int m_obstacleAmnt = 0;
 };
 
