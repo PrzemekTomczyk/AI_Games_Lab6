@@ -65,7 +65,7 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost)
 		m_costText.setFillColor(sf::Color::Black);
 		m_rgb[0] = 0;
 		m_rgb[1] = 0;
-		m_rgb[2] = 255 - 255 * m_cost / (m_highestCost * 1.5f);
+		m_rgb[2] = 255 - 255 * m_cost / (m_highestCost * 1.1f); //multiplier for the highest cost for heatmap colour
 
 		if (m_cost == -1)
 		{

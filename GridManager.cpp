@@ -144,7 +144,7 @@ void GridManager::handleLeftClick(sf::Vector2i t_mousePos)
 	m_grid[tileIndex].setToGoal();
 	m_goalIndex = tileIndex;
 
-	//DRAW VECTOR FIELD IN A SQUARE IF NO OBSTACLES
+	//DRAW VECTOR FIELD IN A SQUARE FORM IF NO OBSTACLES - No need for brushfire
 	if (m_obstacleAmnt == 0)
 	{
 		for (int i = 0; i < m_grid.size(); i++)
@@ -166,6 +166,10 @@ void GridManager::handleLeftClick(sf::Vector2i t_mousePos)
 					costToGoal = vecToGoal.y / m_tileSize.y;
 				}
 				m_grid[i].setCost((int)(std::abs(costToGoal) + 0.5f));
+				if (m_highestCost < m_grid[i].getCost())
+				{
+					m_highestCost = m_grid[i].getCost();
+				}
 			}
 		}
 	}

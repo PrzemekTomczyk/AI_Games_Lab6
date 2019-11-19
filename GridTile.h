@@ -42,6 +42,9 @@ private:
 	sf::Vector2f m_pos;
 	int m_rgb[3]{ 255, 255, 255};
 	int m_cost;
+	int m_heuristic = -1;
+
+	//reference to highest cost variable from GridManager
 	int& m_highestCost;
 
 	sf::RectangleShape m_tile;
