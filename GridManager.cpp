@@ -248,7 +248,7 @@ void GridManager::handleMiddleClick(sf::Vector2i t_mousePos)
 	int tileIndex = row + (col * NO_OF_COLS);
 
 	//change 0 to the cost of the start node after calculations
-	if (m_grid[tileIndex].getType() == GridTile::TileType::None)
+	if (m_grid[tileIndex].getType() == GridTile::TileType::None || m_grid[tileIndex].getType() == GridTile::TileType::Unreachable)
 	{
 		m_grid[tileIndex].setToObstacle();
 		m_obstacleAmnt++;
