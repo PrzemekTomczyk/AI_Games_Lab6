@@ -280,7 +280,7 @@ void GridManager::resetNonObstacleCosts()
 	{
 		if (m_grid[i].getType() != GridTile::TileType::Obstacle && i != m_goalIndex)
 		{
-			m_grid[i].setCost(-1);
+			m_grid[i].reset();
 		}
 	}
 }
@@ -350,6 +350,14 @@ void GridManager::doBrushfireCalc(int t_currentTileIndex)
 	{
 		doBrushfireForNeighbours(neighbours);
 	}
+
+	for (int i = 0; i < m_grid.size(); i++)
+	{
+		if (m_grid[i].getCost() == -1 && m_grid[i].getType() == GridTile::TileType::None)
+		{
+			m_grid[i].setToUnreachable();
+		}
+	}
 }
 
 void GridManager::doBrushfireForNeighbours(std::vector<int>& t_neighbours)
@@ -416,6 +424,7 @@ void GridManager::doBrushfireForNeighbours(std::vector<int>& t_neighbours)
 
 		t_neighbours.erase(t_neighbours.begin(), t_neighbours.begin() + startSize);
 	}
+	std::cout << "Highest cost tile: " << m_highestCost << std::endl;
 }
 
 void GridManager::update()

@@ -18,7 +18,7 @@ GridTile::GridTile(sf::Vector2f t_pos, sf::Font& t_font, int& t_highestCost, sf:
 	//setup tooltip text
 	m_costText.setFont(m_font);
 	m_costText.setFillColor(sf::Color::Black);
-	m_costText.setCharacterSize(t_size.y * 0.75);
+	m_costText.setCharacterSize(t_size.y * 0.75f);
 	m_costText.setString(std::to_string(m_cost));
 	m_costText.setOrigin(m_costText.getGlobalBounds().width / 2.0f, m_costText.getGlobalBounds().height / 2.0f);
 	m_costText.setPosition(m_pos);
@@ -65,12 +65,7 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost)
 		m_costText.setFillColor(sf::Color::Black);
 		m_rgb[0] = 0;
 		m_rgb[1] = 0;
-		m_rgb[2] = 255 - 255 * m_cost / m_highestCost;
-
-		if (255.0f / m_rgb[2] >= 10.f)
-		{
-			m_costText.setFillColor(sf::Color::White);
-		}
+		m_rgb[2] = 255 - 255 * m_cost / (m_highestCost * 1.5f);
 
 		if (m_cost == -1)
 		{
@@ -78,6 +73,12 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost)
 		}
 		break;
 	}
+	case GridTile::TileType::Unreachable:
+		m_costText.setFillColor(sf::Color::White);
+		m_rgb[0] = 31;
+		m_rgb[1] = 31;
+		m_rgb[2] = 45;
+		break;
 	case GridTile::TileType::Path:
 		m_costText.setFillColor(sf::Color::Black);
 		m_rgb[0] = 255;
@@ -132,6 +133,11 @@ void GridTile::setToGoal()
 {
 	m_type = TileType::Goal;
 	m_cost = 0;
+}
+
+void GridTile::setToUnreachable()
+{
+	m_type = TileType::Unreachable;
 }
 
 void GridTile::reset()

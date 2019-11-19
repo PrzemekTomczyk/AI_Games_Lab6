@@ -14,8 +14,8 @@ Game::Game() :
 	m_exitGame{false}, //when true game will exit
 	m_grid(m_font, m_window)
 {
-	int width = sf::VideoMode::getDesktopMode().width - 250;
-	int height = sf::VideoMode::getDesktopMode().height - 250;
+	int width = sf::VideoMode::getDesktopMode().width - 50;
+	int height = sf::VideoMode::getDesktopMode().height - 50;
 	unsigned int windowSize = 0;
 
 	if (height < width)

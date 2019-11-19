@@ -11,6 +11,7 @@ public:
 		Goal,
 		Obstacle,
 		None,
+		Unreachable,
 		Path
 	};
 
@@ -29,6 +30,7 @@ public:
 	void setToObstacle();
 	void setToStart(int t_cost);
 	void setToGoal();
+	void setToUnreachable();
 	void reset();
 	void setFlowField(sf::Vector2f t_direction);
 	sf::Vector2f getPos();
