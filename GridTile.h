@@ -24,7 +24,7 @@ public:
 	GridTile(sf::Vector2f t_pos, sf::Font& t_font, int& t_highestCost, sf::Vector2f t_size);
 	~GridTile();
 	void init(int t_cost, int t_rgb[3]);
-	void render(sf::RenderWindow& t_window, bool t_showCost);
+	void render(sf::RenderWindow& t_window, bool t_showCost, bool t_showFlowField);
 	int getCost();
 	void setCost(int t_cost);
 	void setToObstacle();
@@ -36,6 +36,7 @@ public:
 	sf::Vector2f getPos();
 	float getDiagonal();
 	TileType getType();
+	sf::RectangleShape getVectorLine();
 
 private:
 	TileType m_type;
@@ -48,6 +49,7 @@ private:
 	int& m_highestCost;
 
 	sf::RectangleShape m_tile;
+	sf::RectangleShape m_vecFieldLine;
 
 	sf::Font& m_font;
 	sf::Text m_costText;

@@ -48,6 +48,8 @@ private:
 	bool m_showCost = false;
 	bool m_numTwoPressed = false;
 	bool m_gridUpdateRequired = false;
+	bool m_numThreePressed = false;
+	bool m_showVecFields = false;
 
 	//ints
 	int m_goalIndex = -1;

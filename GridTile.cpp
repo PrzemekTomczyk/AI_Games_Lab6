@@ -14,6 +14,10 @@ GridTile::GridTile(sf::Vector2f t_pos, sf::Font& t_font, int& t_highestCost, sf:
 	m_tile.setOutlineColor(sf::Color::Black);
 	m_tile.setOutlineThickness(-1.0f);
 
+	//setup vector flow line
+	m_vecFieldLine.setSize(sf::Vector2f(t_size.x, 2));
+	m_vecFieldLine.setFillColor(sf::Color::White);
+	m_vecFieldLine.setPosition(m_pos);
 
 	//setup tooltip text
 	m_costText.setFont(m_font);
@@ -38,8 +42,9 @@ void GridTile::init(int t_cost, int t_rgb[3])
 	m_tile.setFillColor(sf::Color(m_rgb[0], m_rgb[1], m_rgb[2]));
 }
 
-void GridTile::render(sf::RenderWindow& t_window, bool t_showCost)
+void GridTile::render(sf::RenderWindow& t_window, bool t_showCost, bool t_showFlowField)
 {
+	m_vecFieldLine.setSize(sf::Vector2f(m_tile.getSize().x, 2));
 	switch (m_type)
 	{
 	case GridTile::TileType::Start:
@@ -55,6 +60,7 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost)
 		m_rgb[2] = 0;
 		break;
 	case GridTile::TileType::Obstacle:
+		m_vecFieldLine.setSize(sf::Vector2f(0, 0));
 		m_costText.setFillColor(sf::Color::White);
 		m_rgb[0] = 0;
 		m_rgb[1] = 0;
@@ -74,6 +80,7 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost)
 		break;
 	}
 	case GridTile::TileType::Unreachable:
+		m_vecFieldLine.setSize(sf::Vector2f(0, 0));
 		m_costText.setFillColor(sf::Color::White);
 		m_rgb[0] = 31;
 		m_rgb[1] = 31;
@@ -105,6 +112,10 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost)
 		m_costText.setPosition(m_pos);
 		t_window.draw(m_costText);
 	}
+	//if (t_showFlowField && m_cost >= 0)
+	//{
+	//	t_window.draw(m_vecFieldLine);
+	//}
 }
 
 int GridTile::getCost()
@@ -157,7 +168,10 @@ void GridTile::reset()
 
 void GridTile::setFlowField(sf::Vector2f t_direction)
 {
-
+	sf::Vector2f direction = t_direction - m_pos;
+	float angle = std::atan2(direction.y, direction.x);
+		
+	m_vecFieldLine.setRotation(thor::toDegree(angle));
 }
 
 sf::Vector2f GridTile::getPos()
@@ -173,4 +187,9 @@ float GridTile::getDiagonal()
 GridTile::TileType GridTile::getType()
 {
 	return m_type;
+}
+
+sf::RectangleShape GridTile::getVectorLine()
+{
+	return m_vecFieldLine;
 }

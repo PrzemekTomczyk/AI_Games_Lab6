@@ -16,8 +16,16 @@ void GridManager::render()
 {
 	for (int i = 0; i < m_grid.size(); i++)
 	{
-		m_grid[i].render(m_window, m_showCost);
+		m_grid[i].render(m_window, m_showCost, m_showVecFields);
 	}
+	if (m_showVecFields)
+	{
+		for (int i = 0; i < m_grid.size(); i++)
+		{
+			m_window.draw(m_grid[i].getVectorLine());
+		}
+	}
+
 
 	if (m_showTooltips)
 	{
@@ -69,6 +77,17 @@ void GridManager::handleKeyboard()
 	{
 		m_numTwoPressed = false;
 	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3) && !m_numThreePressed)
+	{
+		m_numThreePressed = true;
+		m_showVecFields = !m_showVecFields;
+	}
+	else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Num3))
+	{
+		m_numThreePressed = false;
+	}
+
 }
 
 void GridManager::handleMouse()
@@ -98,7 +117,6 @@ void GridManager::handleMouse()
 	//handle mmb
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Middle))
 	{
-		//m_gridUpdateRequired = true;
 		handleMiddleClick(sf::Mouse::getPosition(m_window));
 	}
 	else if (!sf::Mouse::isButtonPressed(sf::Mouse::Button::Middle) && m_gridUpdateRequired)
@@ -137,48 +155,50 @@ void GridManager::handleLeftClick(sf::Vector2i t_mousePos)
 	{
 		m_grid[m_goalIndex].reset();
 	}
-	if (m_grid[tileIndex].getType() == GridTile::TileType::Obstacle)
-	{
-		m_obstacleAmnt--;
-	}
+	//if (m_grid[tileIndex].getType() == GridTile::TileType::Obstacle)
+	//{
+	//	m_obstacleAmnt--;
+	//}
 	m_grid[tileIndex].setToGoal();
 	m_goalIndex = tileIndex;
 
-	//DRAW VECTOR FIELD IN A SQUARE FORM IF NO OBSTACLES - No need for brushfire
-	if (m_obstacleAmnt == 0)
-	{
-		for (int i = 0; i < m_grid.size(); i++)
-		{
-			if (m_grid[i].getType() == GridTile::TileType::Goal)
-			{
-				continue;
-			}
-			else if (m_grid[i].getType() == GridTile::TileType::None || m_grid[i].getType() == GridTile::TileType::Start)
-			{
-				sf::Vector2f vecToGoal = m_grid[m_goalIndex].getPos() - m_grid[i].getPos();
-				float costToGoal;
-				if (std::abs(vecToGoal.x) >= std::abs(vecToGoal.y))
-				{
-					costToGoal = vecToGoal.x / m_tileSize.x;
-				}
-				else
-				{
-					costToGoal = vecToGoal.y / m_tileSize.y;
-				}
-				m_grid[i].setCost((int)(std::abs(costToGoal) + 0.5f));
-				if (m_highestCost < m_grid[i].getCost())
-				{
-					m_highestCost = m_grid[i].getCost();
-				}
-			}
-		}
-	}
-	else
-	{
+	////DRAW VECTOR FIELD IN A SQUARE FORM IF NO OBSTACLES - No need for brushfire
+	//if (m_obstacleAmnt == 0)
+	//{
+	//	for (int i = 0; i < m_grid.size(); i++)
+	//	{
+	//		if (m_grid[i].getType() == GridTile::TileType::Goal)
+	//		{
+	//			continue;
+	//		}
+	//		else if (m_grid[i].getType() == GridTile::TileType::None || m_grid[i].getType() == GridTile::TileType::Start)
+	//		{
+	//			sf::Vector2f vecToGoal = m_grid[m_goalIndex].getPos() - m_grid[i].getPos();
+	//			float costToGoal;
+	//			if (std::abs(vecToGoal.x) >= std::abs(vecToGoal.y))
+	//			{
+	//				costToGoal = vecToGoal.x / m_tileSize.x;
+	//			}
+	//			else
+	//			{
+	//				costToGoal = vecToGoal.y / m_tileSize.y;
+	//			}
+	//			m_grid[i].setCost((int)(std::abs(costToGoal) + 0.5f));
+	//			m_grid[i].setFlowField(m_grid[i].getPos());
+
+	//			if (m_highestCost < m_grid[i].getCost())
+	//			{
+	//				m_highestCost = m_grid[i].getCost();
+	//			}
+	//		}
+	//	}
+	//}
+	//else
+	//{
 		//do brushfire()
-		resetNonObstacleCosts();
-		doBrushfireCalc(m_goalIndex);
-	}
+	resetNonObstacleCosts();
+	doBrushfireCalc(m_goalIndex);
+	//}
 }
 
 void GridManager::handleRightClick(sf::Vector2i t_mousePos)
@@ -210,7 +230,7 @@ void GridManager::handleRightClick(sf::Vector2i t_mousePos)
 		//change 0 to the cost of the start node after calculations
 		if (m_grid[tileIndex].getType() == GridTile::TileType::Obstacle && m_goalIndex > -1)
 		{
-			m_obstacleAmnt--;
+			//m_obstacleAmnt--;
 			sf::Vector2f vecToGoal = m_grid[m_goalIndex].getPos() - m_grid[tileIndex].getPos();
 			int costToGoal;
 			if (std::abs(vecToGoal.x) >= std::abs(vecToGoal.y))
@@ -255,7 +275,7 @@ void GridManager::handleMiddleClick(sf::Vector2i t_mousePos)
 	if (m_grid[tileIndex].getType() == GridTile::TileType::None || m_grid[tileIndex].getType() == GridTile::TileType::Unreachable)
 	{
 		m_grid[tileIndex].setToObstacle();
-		m_obstacleAmnt++;
+		//m_obstacleAmnt++;
 
 		if (m_goalIndex >= 0)
 		{
@@ -282,9 +302,13 @@ void GridManager::resetNonObstacleCosts()
 {
 	for (int i = 0; i < m_grid.size(); i++)
 	{
-		if (m_grid[i].getType() != GridTile::TileType::Obstacle && i != m_goalIndex)
+		if (m_grid[i].getType() == GridTile::TileType::None || m_grid[i].getType() == GridTile::TileType::Unreachable)
 		{
 			m_grid[i].reset();
+		}
+		else if (m_grid[i].getType() == GridTile::TileType::Start)
+		{
+			m_grid[i].setCost(-1);
 		}
 	}
 }
@@ -422,13 +446,16 @@ void GridManager::doBrushfireForNeighbours(std::vector<int>& t_neighbours)
 				{
 					m_highestCost = m_grid[t_neighbours[i]].getCost() + 1;
 				}
+				m_grid[t_neighbours[j]].setFlowField(m_grid[t_neighbours[i]].getPos());
+
 			}
 			newNeighbours = t_neighbours.size();
 		}
 
 		t_neighbours.erase(t_neighbours.begin(), t_neighbours.begin() + startSize);
 	}
-	std::cout << "Highest cost tile: " << m_highestCost << std::endl;
+	//Debug cout
+	//std::cout << "Highest cost tile: " << m_highestCost << std::endl;
 }
 
 void GridManager::update()
@@ -455,6 +482,6 @@ void GridManager::init()
 	m_tooltipText.setFont(m_font);
 	m_tooltipText.setFillColor(sf::Color::Black);
 	m_tooltipText.setCharacterSize(15);
-	m_tooltipText.setString("Press 1 to display cost values\nPress 2 reset the grid");
+	m_tooltipText.setString("Press 1 to display cost values\nPress 2 reset the grid\nPress 3 to show flow fields\nPress 4 to remove Goal tile");
 	m_tooltipText.setPosition(sf::Vector2f(0, 0));
 }
