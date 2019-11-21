@@ -24,13 +24,15 @@ public:
 	GridTile(sf::Vector2f t_pos, sf::Font& t_font, int& t_highestCost, sf::Vector2f t_size);
 	~GridTile();
 	void init(int t_cost, int t_rgb[3]);
-	void render(sf::RenderWindow& t_window, bool t_showCost, bool t_showFlowField);
+	void render(sf::RenderWindow& t_window, bool t_showCost, bool t_showFlowField, bool t_showHeatmap);
 	int getCost();
 	void setCost(int t_cost);
 	void setToObstacle();
 	void setToStart(int t_cost);
 	void setToGoal();
 	void setToUnreachable();
+	void setHeuristic(sf::Vector2f t_pos);
+	float getHeuristic();
 	void reset();
 	void setFlowField(sf::Vector2f t_direction);
 	sf::Vector2f getPos();
@@ -43,7 +45,7 @@ private:
 	sf::Vector2f m_pos;
 	int m_rgb[3]{ 255, 255, 255};
 	int m_cost;
-	int m_heuristic = -1;
+	float m_heuristic = -1;
 
 	//reference to highest cost variable from GridManager
 	int& m_highestCost;

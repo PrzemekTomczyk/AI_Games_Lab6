@@ -1,4 +1,5 @@
 ﻿#include "GridTile.h"
+#include <iostream>
 
 GridTile::GridTile(sf::Vector2f t_pos, sf::Font& t_font, int& t_highestCost, sf::Vector2f t_size) :
 	m_font(t_font),
@@ -16,6 +17,7 @@ GridTile::GridTile(sf::Vector2f t_pos, sf::Font& t_font, int& t_highestCost, sf:
 
 	//setup vector flow line
 	m_vecFieldLine.setSize(sf::Vector2f(t_size.x, 2));
+	m_vecFieldLine.setOrigin(0, 1);
 	m_vecFieldLine.setFillColor(sf::Color::White);
 	m_vecFieldLine.setPosition(m_pos);
 
@@ -42,9 +44,12 @@ void GridTile::init(int t_cost, int t_rgb[3])
 	m_tile.setFillColor(sf::Color(m_rgb[0], m_rgb[1], m_rgb[2]));
 }
 
-void GridTile::render(sf::RenderWindow& t_window, bool t_showCost, bool t_showFlowField)
+void GridTile::render(sf::RenderWindow& t_window, bool t_showCost, bool t_showFlowField, bool t_showHeatmap)
 {
-	m_vecFieldLine.setSize(sf::Vector2f(m_tile.getSize().x, 2));
+	if (m_cost == -1)
+	{
+		m_vecFieldLine.setSize(sf::Vector2f(0, 0));
+	}
 	switch (m_type)
 	{
 	case GridTile::TileType::Start:
@@ -60,7 +65,6 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost, bool t_showFl
 		m_rgb[2] = 0;
 		break;
 	case GridTile::TileType::Obstacle:
-		m_vecFieldLine.setSize(sf::Vector2f(0, 0));
 		m_costText.setFillColor(sf::Color::White);
 		m_rgb[0] = 0;
 		m_rgb[1] = 0;
@@ -71,7 +75,14 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost, bool t_showFl
 		m_costText.setFillColor(sf::Color::Black);
 		m_rgb[0] = 0;
 		m_rgb[1] = 0;
-		m_rgb[2] = 255 - 255 * m_cost / (m_highestCost * 1.1f); //multiplier for the highest cost for heatmap colour
+		if (t_showHeatmap)
+		{
+			m_rgb[2] = 255 - 255 * m_cost / (m_highestCost * 1.1f); //multiplier for the highest cost for heatmap colour
+		}
+		else
+		{
+			m_rgb[2] = 255;
+		}
 
 		if (m_cost == -1)
 		{
@@ -103,7 +114,11 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost, bool t_showFl
 		if (m_type == GridTile::TileType::Obstacle)
 		{
 			m_costText.setString("-1");
-		}		
+		}
+		else if (m_type == GridTile::TileType::Unreachable)
+		{
+			m_costText.setString("");
+		}
 		else
 		{
 			m_costText.setString(std::to_string(m_cost));
@@ -112,10 +127,6 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost, bool t_showFl
 		m_costText.setPosition(m_pos);
 		t_window.draw(m_costText);
 	}
-	//if (t_showFlowField && m_cost >= 0)
-	//{
-	//	t_window.draw(m_vecFieldLine);
-	//}
 }
 
 int GridTile::getCost()
@@ -132,6 +143,7 @@ void GridTile::setToObstacle()
 {
 	m_type = TileType::Obstacle;
 	m_cost = INT_MAX;
+	m_heuristic = INT_MAX;
 }
 
 void GridTile::setToStart(int t_cost)
@@ -151,10 +163,22 @@ void GridTile::setToUnreachable()
 	m_type = TileType::Unreachable;
 }
 
+void GridTile::setHeuristic(sf::Vector2f t_pos)
+{
+	float heuristic = thor::length(m_pos - t_pos);
+	m_heuristic = std::abs(heuristic);
+}
+
+float GridTile::getHeuristic()
+{
+	return m_heuristic;
+}
+
 void GridTile::reset()
 {
 	//reset cost
 	m_cost = -1;
+	m_heuristic = -1;
 
 	//reset colour
 	for (int i = 0; i < 3; i++)
@@ -164,14 +188,29 @@ void GridTile::reset()
 
 	//reset type
 	m_type = TileType::None;
+	setFlowField(m_pos);
 }
 
 void GridTile::setFlowField(sf::Vector2f t_direction)
 {
 	sf::Vector2f direction = t_direction - m_pos;
-	float angle = std::atan2(direction.y, direction.x);
-		
-	m_vecFieldLine.setRotation(thor::toDegree(angle));
+	int angle = thor::toDegree(std::atan2(direction.y, direction.x));
+
+	int angleCheck = std::abs(angle / 45);
+	switch (angleCheck)
+	{
+	case 1:
+	case 3:
+	case 5:
+	case 7:
+		m_vecFieldLine.setSize(sf::Vector2f(getDiagonal(), 2));
+		break;
+	default:
+		m_vecFieldLine.setSize(sf::Vector2f(m_tile.getSize().x, 2));
+		break;
+	}
+
+	m_vecFieldLine.setRotation(angle);
 }
 
 sf::Vector2f GridTile::getPos()

@@ -22,6 +22,8 @@ private:
 	void doBrushfireCalc(int t_currentTileIndex);
 	void doBrushfireForNeighbours(std::vector<int>& t_neighbours);
 	void resetNonObstacleCosts();
+	void calcPath(int t_startIndex);
+	int getNeighbourIndex(int t_index, int t_indexOfTileToGetNeighbours);
 
 	//vectors
 	std::vector<GridTile> m_grid;
@@ -50,6 +52,11 @@ private:
 	bool m_gridUpdateRequired = false;
 	bool m_numThreePressed = false;
 	bool m_showVecFields = false;
+	bool m_numFourPressed = false;
+	bool m_numFivePressed = false;
+	bool m_showHeatmap = true;
+	bool m_spacePressed = false;
+	bool m_deleteMode = false;
 
 	//ints
 	int m_goalIndex = -1;
