@@ -23,7 +23,10 @@ private:
 	void doBrushfireForNeighbours(std::vector<int>& t_neighbours);
 	void resetNonObstacleCosts();
 	void calcPath(int t_startIndex);
+	void recalcPaths();
 	int getNeighbourIndex(int t_index, int t_indexOfTileToGetNeighbours);
+	void checkIfStartRemoved(int t_tileClicked);
+	int getTileIndex(sf::Vector2i t_mousePos);
 
 	//vectors
 	std::vector<GridTile> m_grid;
@@ -45,22 +48,23 @@ private:
 	//bools
 	bool m_leftBtn = false;
 	bool m_rightBtn = false;
+	bool m_middleBtn = false;
 	bool m_showTooltips = false;
 	bool m_numOnePressed = false;
 	bool m_showCost = false;
-	bool m_numTwoPressed = false;
+	bool m_rPressed = false;
 	bool m_gridUpdateRequired = false;
 	bool m_numThreePressed = false;
 	bool m_showVecFields = false;
 	bool m_numFourPressed = false;
-	bool m_numFivePressed = false;
+	bool m_numTwoPressed = false;
 	bool m_showHeatmap = true;
 	bool m_spacePressed = false;
 	bool m_deleteMode = false;
 
 	//ints
 	int m_goalIndex = -1;
+	std::vector<int> m_startIndexes;
 	int m_highestCost = -1;
-	int m_obstacleAmnt = 0;
 };
 

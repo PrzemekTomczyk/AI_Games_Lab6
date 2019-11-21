@@ -31,7 +31,9 @@ Game::Game() :
 
 	setupFont(); // load font 
 
+	std::cout << "Starting Grid init" << std::endl;
 	m_grid.init();
+	std::cout << "Finished Grid init" << std::endl;
 }
 
 /// <summary>

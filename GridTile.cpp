@@ -44,7 +44,7 @@ void GridTile::init(int t_cost, int t_rgb[3])
 	m_tile.setFillColor(sf::Color(m_rgb[0], m_rgb[1], m_rgb[2]));
 }
 
-void GridTile::render(sf::RenderWindow& t_window, bool t_showCost, bool t_showFlowField, bool t_showHeatmap)
+void GridTile::render(sf::RenderWindow& t_window, bool t_showCost, bool t_showHeatmap)
 {
 	if (m_cost == -1)
 	{
@@ -77,7 +77,7 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost, bool t_showFl
 		m_rgb[1] = 0;
 		if (t_showHeatmap)
 		{
-			m_rgb[2] = 255 - 255 * m_cost / (m_highestCost * 1.1f); //multiplier for the highest cost for heatmap colour
+			m_rgb[2] = 255 - 255 * m_cost / (m_highestCost * 1.5f); //multiplier for the highest cost for heatmap colour
 		}
 		else
 		{
