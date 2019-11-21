@@ -11,9 +11,18 @@
 /// </summary>
 Game::Game() :
 	//m_window{ },
-	m_exitGame{false}, //when true game will exit
+	m_exitGame{ false }, //when true game will exit
 	m_grid(m_font, m_window)
 {
+	setupFont(); // load font 
+
+	//setup tooltip text
+	m_tooltipText.setFont(m_font);
+	m_tooltipText.setFillColor(sf::Color::Black);
+	m_tooltipText.setCharacterSize((int)(m_window.getSize().x / 62));
+	m_tooltipText.setString("Press LMB to place Goal\nPress RMB to place Start Tiles\nPress/Hold MMB to place Obstacles\nPress Space to toggle between place/remove using MMB\nPress 1 to display cost values\nPress 2 to disable heatmap\nPress 3 to show flow fields\nPress 4 to remove Goal tile\nPress R reset the grid");
+	m_tooltipText.setPosition(sf::Vector2f(0, 0));
+
 	int width = sf::VideoMode::getDesktopMode().width - 50;
 	int height = sf::VideoMode::getDesktopMode().height - 50;
 	unsigned int windowSize = 0;
@@ -27,9 +36,14 @@ Game::Game() :
 		windowSize = 50 * std::ceil(width / 50);
 	}
 
-	m_window.create(sf::VideoMode{ windowSize, windowSize, 32U }, "SFML Game", sf::Style::Titlebar | sf::Style::Close);
+	m_window.create(sf::VideoMode{ windowSize + 200, windowSize, 32U }, "SFML Game", sf::Style::Titlebar | sf::Style::Close);
+	m_window.setPosition(sf::Vector2i(sf::VideoMode::getDesktopMode().width / 2 - m_window.getSize().x / 2, 0));
 
-	setupFont(); // load font 
+	m_textBackground.setSize(sf::Vector2f(200, m_window.getSize().y));
+	m_textBackground.setFillColor(sf::Color(0, 0, 102));
+	m_textBackground.setPosition(m_window.getSize().y, 0);
+
+
 
 	std::cout << "Starting Grid init" << std::endl;
 	m_grid.init();
@@ -53,7 +67,7 @@ Game::~Game()
 /// if updates run slow then don't render frames
 /// </summary>
 void Game::run()
-{	
+{
 	sf::Clock clock;
 	sf::Time timeSinceLastUpdate = sf::Time::Zero;
 	const float fps{ 60.0f };
@@ -81,7 +95,7 @@ void Game::processEvents()
 	sf::Event newEvent;
 	while (m_window.pollEvent(newEvent))
 	{
-		if ( sf::Event::Closed == newEvent.type) // window message
+		if (sf::Event::Closed == newEvent.type) // window message
 		{
 			m_exitGame = true;
 		}
@@ -126,6 +140,9 @@ void Game::update(sf::Time t_deltaTime)
 void Game::render()
 {
 	m_window.clear(sf::Color::Black);
+
+	m_window.draw(m_textBackground);
+	m_window.draw(m_tooltipText);
 
 	m_grid.render();
 

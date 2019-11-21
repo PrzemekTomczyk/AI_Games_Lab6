@@ -33,6 +33,11 @@ private:
 
 	GridManager m_grid;
 
+	//text
+	sf::Text m_tooltipText;
+	sf::RectangleShape m_textBackground;
+
+
 };
 
 #endif // !GAME_HPP

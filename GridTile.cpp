@@ -99,9 +99,9 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost, bool t_showHe
 		break;
 	case GridTile::TileType::Path:
 		m_costText.setFillColor(sf::Color::Black);
-		m_rgb[0] = 255;
+		m_rgb[0] = 0;
 		m_rgb[1] = 255;
-		m_rgb[2] = 0;
+		m_rgb[2] = 255;
 		break;
 	default:
 		break;
@@ -161,6 +161,11 @@ void GridTile::setToGoal()
 void GridTile::setToUnreachable()
 {
 	m_type = TileType::Unreachable;
+}
+
+void GridTile::setToPath()
+{
+	m_type = TileType::Path;
 }
 
 void GridTile::setHeuristic(sf::Vector2f t_pos)

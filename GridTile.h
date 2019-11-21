@@ -31,6 +31,7 @@ public:
 	void setToStart(int t_cost);
 	void setToGoal();
 	void setToUnreachable();
+	void setToPath();
 	void setHeuristic(sf::Vector2f t_pos);
 	float getHeuristic();
 	void reset();

@@ -29,15 +29,6 @@ void GridManager::render()
 		}
 	}
 
-	if (m_showTooltips)
-	{
-		sf::RectangleShape background;
-		background.setSize(sf::Vector2f(m_tooltipText.getGlobalBounds().width + 10, m_tooltipText.getGlobalBounds().height + 10));
-		background.setFillColor(sf::Color::White);
-		background.setPosition(sf::Vector2f(0, 0));
-		m_window.draw(background);
-		m_window.draw(m_tooltipText);
-	}
 }
 
 void GridManager::handleInput()
@@ -51,15 +42,6 @@ void GridManager::handleInput()
 
 void GridManager::handleKeyboard()
 {
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Tab))
-	{
-		m_showTooltips = true;
-	}
-	else
-	{
-		m_showTooltips = false;
-	}
-
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && !m_spacePressed)
 	{
 		m_spacePressed = true;
@@ -183,6 +165,8 @@ void GridManager::handleMouse()
 void GridManager::handleLeftClick(sf::Vector2i t_mousePos)
 {
 	int tileIndex = getTileIndex(t_mousePos);
+	checkIfStartRemoved(tileIndex);
+	m_grid[tileIndex].reset();
 
 	if (m_goalIndex > -1)
 	{
@@ -191,7 +175,6 @@ void GridManager::handleLeftClick(sf::Vector2i t_mousePos)
 
 	m_grid[tileIndex].setToGoal();
 	m_goalIndex = tileIndex;
-	checkIfStartRemoved(tileIndex);
 
 	resetNonObstacleCosts();
 	doBrushfireCalc(m_goalIndex);
@@ -207,6 +190,10 @@ void GridManager::handleRightClick(sf::Vector2i t_mousePos)
 		if (m_grid[tileIndex].getType() == GridTile::TileType::Obstacle && m_goalIndex > -1)
 		{
 			m_gridUpdateRequired = true;
+		}
+		else if (m_goalIndex > -1)
+		{
+			findAndSetPath(tileIndex);
 		}
 		m_grid[tileIndex].setToStart(m_grid[tileIndex].getCost());
 		m_startIndexes.push_back(tileIndex);
@@ -225,7 +212,7 @@ void GridManager::handleMiddleClick(sf::Vector2i t_mousePos)
 		m_grid[tileIndex].reset();
 		m_gridUpdateRequired = true;
 	}
-	else if (!m_deleteMode && (m_grid[tileIndex].getType() == GridTile::TileType::None || m_grid[tileIndex].getType() == GridTile::TileType::Unreachable))
+	else if (!m_deleteMode && (m_grid[tileIndex].getType() == GridTile::TileType::None || m_grid[tileIndex].getType() == GridTile::TileType::Unreachable || m_grid[tileIndex].getType() == GridTile::TileType::Path))
 	{
 		m_grid[tileIndex].setToObstacle();
 
@@ -256,7 +243,7 @@ void GridManager::resetNonObstacleCosts()
 {
 	for (int i = 0; i < m_grid.size(); i++)
 	{
-		if (m_grid[i].getType() == GridTile::TileType::None || m_grid[i].getType() == GridTile::TileType::Unreachable)
+		if (m_grid[i].getType() == GridTile::TileType::None || m_grid[i].getType() == GridTile::TileType::Unreachable || m_grid[i].getType() == GridTile::TileType::Path)
 		{
 			m_grid[i].reset();
 		}
@@ -267,65 +254,74 @@ void GridManager::resetNonObstacleCosts()
 	}
 }
 
-void GridManager::calcPath(int t_startIndex) 
+/// <summary>
+/// recursive function that goes from start to goal, or until it meets an already found path, and changes tiles to be of type Path
+/// </summary>
+/// <param name="t_startIndex"></param>
+void GridManager::findAndSetPath(int t_startIndex)
 {
-
-}
-
-void GridManager::recalcPaths()
-{
-	/*
-	for (int startTileIndex = 0; startTileIndex < m_startIndexes.size(); startTileIndex++)
+	bool isStart = false;
+	bool pathFinished = false;
+	for (int i = 0; i < m_startIndexes.size(); i++)
 	{
-		int indexWithLowestCost = 0;
-		float costForPreviousTile;// = m_grid[indexWithLowestCost].getCost() * 300 + m_grid[indexWithLowestCost].getHeuristic();
-		float costForNeighbour;// = m_grid[getNeighbourIndex(vecFlowIndex, t_neighbours[j])].getCost() * 300 + m_grid[getNeighbourIndex(vecFlowIndex, t_neighbours[j])].getHeuristic();
-
-		for (int neighbours = 0; neighbours < 8; neighbours++)
+		if (t_startIndex == m_startIndexes[i])
 		{
-			int neighbourIndex = getNeighbourIndex(neighbours, m_startIndexes[startTileIndex]);
-
-			if (neighbourIndex >= m_grid.size() || neighbourIndex < 0 || m_grid[neighbourIndex].getCost() == -1 || m_grid[neighbourIndex].getType() == GridTile::TileType::Obstacle)
-			{
-				continue;
-			}
-			//make sure its an actual neighbour and not a "neighbour" that wrapped to the other side of the screen
-			else if (thor::length(m_grid[t_neighbours[j]].getPos() - m_grid[neighbourIndex].getPos()) > (m_grid[0].getDiagonal() * 1.1f)) // mult by 1.1f to account for floating point numbers
-			{
-				continue;
-			}
-
+			isStart = true;
 		}
 	}
+	int indexWithLowestCost = -1;
+	float smallestCost = INT_MAX;// = m_grid[indexWithLowestCost].getCost() * 300 + m_grid[indexWithLowestCost].getHeuristic();
+	float neighbourCost;// = m_grid[getNeighbourIndex(vecFlowIndex, t_neighbours[j])].getCost() * 300 + m_grid[getNeighbourIndex(vecFlowIndex, t_neighbours[j])].getHeuristic();
 
-	//for loop to check neighbours of newly added cell
-	for (int vecFlowIndex = 0; vecFlowIndex < 8; vecFlowIndex++)
+	for (int neighboursLoopIndex = 0; neighboursLoopIndex < 8; neighboursLoopIndex++)
 	{
-		//get the index
-		int neighbourIndex = getNeighbourIndex(vecFlowIndex, t_neighbours[j]);
-		//make sure the "neighbour cell" is a valid one
+		int neighbourIndex = getNeighbourIndex(neighboursLoopIndex, t_startIndex);
+
 		if (neighbourIndex >= m_grid.size() || neighbourIndex < 0 || m_grid[neighbourIndex].getCost() == -1 || m_grid[neighbourIndex].getType() == GridTile::TileType::Obstacle)
 		{
 			continue;
 		}
 		//make sure its an actual neighbour and not a "neighbour" that wrapped to the other side of the screen
-		else if (thor::length(m_grid[t_neighbours[j]].getPos() - m_grid[neighbourIndex].getPos()) > (m_grid[0].getDiagonal() * 1.1f)) // mult by 1.1f to account for floating point numbers
+		else if (thor::length(m_grid[t_startIndex].getPos() - m_grid[neighbourIndex].getPos()) > (m_grid[0].getDiagonal() * 1.1f)) // mult by 1.1f to account for floating point numbers
 		{
 			continue;
 		}
 
-		//Multiply cell cost by 300 as we value cheaper cells more over the heuristic cost
-		//tweak scalar for tile cost
-		float costForPreviousTile = m_grid[indexWithLowestCost].getCost() * 300 + m_grid[indexWithLowestCost].getHeuristic();
-		float costForNeighbour = m_grid[getNeighbourIndex(vecFlowIndex, t_neighbours[j])].getCost() * 300 + m_grid[getNeighbourIndex(vecFlowIndex, t_neighbours[j])].getHeuristic();
-
-		//if the neigbour we just checked is cheaper than current one, update the cheapest index
-		if (costForPreviousTile > costForNeighbour)
+		//if (m_grid[neighbourIndex].getType() != GridTile::TileType::Path)
+		neighbourCost = m_grid[neighbourIndex].getCost() * 300 + m_grid[neighbourIndex].getHeuristic();
+		if (neighbourCost < smallestCost)
 		{
-			indexWithLowestCost = getNeighbourIndex(vecFlowIndex, t_neighbours[j]);
+			smallestCost = neighbourCost;
+			indexWithLowestCost = neighbourIndex;
+
+			//check if that neighbour tile is already a path. This means we have hit an already set path - no further calc needed
+			if (m_grid[indexWithLowestCost].getType() == GridTile::TileType::Goal)
+			{
+				pathFinished = true;
+				break;
+			}
 		}
 	}
-	*/
+	//if the neighbour we consider the closest is already a path, we found an already established path to the goal meaning we can stop
+	if (indexWithLowestCost > -1)
+	{
+		if (m_grid[indexWithLowestCost].getType() == GridTile::TileType::Path)
+		{
+			pathFinished = true;
+		}
+	}
+
+
+	//if we didnt come across already marked out path, keep marking tiles
+	if (!pathFinished && indexWithLowestCost > -1)
+	{
+		if (m_grid[indexWithLowestCost].getType() == GridTile::TileType::None)
+		{
+			m_grid[indexWithLowestCost].setToPath();
+
+		}
+		findAndSetPath(indexWithLowestCost);
+	}
 }
 
 /// <summary>
@@ -453,6 +449,11 @@ void GridManager::doBrushfireCalc(int t_currentTileIndex)
 			m_grid[i].setToUnreachable();
 		}
 	}
+
+	for (int i = 0; i < m_startIndexes.size(); i++)
+	{
+		findAndSetPath(m_startIndexes[i]);
+	}
 }
 
 void GridManager::doBrushfireForNeighbours(std::vector<int>& t_neighbours)
@@ -545,6 +546,8 @@ void GridManager::doBrushfireForNeighbours(std::vector<int>& t_neighbours)
 		//remove old/already set neigbours from the vector
 		t_neighbours.erase(t_neighbours.begin(), t_neighbours.begin() + startSize);
 	}
+	std::cout << "        Finished calculation Brushfire" << std::endl;
+
 	//Debug cout
 	//std::cout << "Highest cost tile: " << m_highestCost << std::endl;
 }
@@ -556,7 +559,8 @@ void GridManager::update()
 
 void GridManager::init()
 {
-	m_tileSize.x = m_window.getSize().x / 50.0f;
+	//use height of the window to make squares as the right side of the screen is used for tooltip info
+	m_tileSize.x = m_window.getSize().y / 50.0f;
 	m_tileSize.y = m_window.getSize().y / 50.0f;
 	m_grid.reserve(2500);
 
@@ -568,11 +572,4 @@ void GridManager::init()
 			m_grid.push_back(tile);
 		}
 	}
-
-	//setup tooltip text
-	m_tooltipText.setFont(m_font);
-	m_tooltipText.setFillColor(sf::Color::Black);
-	m_tooltipText.setCharacterSize(32);
-	m_tooltipText.setString("Press LMB to place Goal\nPress RMB to place Start Tiles\nPress/Hold MMB to place Obstacles\nPress Space to toggle between place/remove using MMB\nPress 1 to display cost values\nPress 2 to disable heatmap\nPress 3 to show flow fields\nPress 4 to remove Goal tile\nPress R reset the grid");
-	m_tooltipText.setPosition(sf::Vector2f(0, 0));
 }
