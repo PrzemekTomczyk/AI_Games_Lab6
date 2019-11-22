@@ -9,7 +9,7 @@ public:
 	~GridManager();
 	void render();
 	void update();
-	void init();
+	void init(float t_textOffset);
 
 private:
 	void handleInput();
@@ -28,14 +28,18 @@ private:
 	int getTileIndex(sf::Vector2i t_mousePos);
 
 	//vectors
-	std::vector<GridTile> m_grid;
-	
+	std::vector<GridTile> m_grid;	
 	sf::Vector2f m_tileSize;
+	std::vector<int> m_startIndexes;
 
 	//references
 	sf::Font& m_font;
 	sf::RenderWindow& m_window;
 
+	//text object
+	sf::Text m_placeModeTxt;
+	std::string m_placeString;
+	std::string m_deleteString;
 
 	//consts
 	const int MAX_TILES = 2500;
@@ -62,7 +66,6 @@ private:
 
 	//ints
 	int m_goalIndex = -1;
-	std::vector<int> m_startIndexes;
 	int m_highestCost = -1;
 };
 

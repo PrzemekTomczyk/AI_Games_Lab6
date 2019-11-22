@@ -18,7 +18,7 @@ GridTile::GridTile(sf::Vector2f t_pos, sf::Font& t_font, int& t_highestCost, sf:
 	//setup vector flow line
 	m_vecFieldLine.setSize(sf::Vector2f(t_size.x, 2));
 	m_vecFieldLine.setOrigin(0, 1);
-	m_vecFieldLine.setFillColor(sf::Color::White);
+	m_vecFieldLine.setFillColor(sf::Color::Yellow);
 	m_vecFieldLine.setPosition(m_pos);
 
 	//setup tooltip text
@@ -77,7 +77,7 @@ void GridTile::render(sf::RenderWindow& t_window, bool t_showCost, bool t_showHe
 		m_rgb[1] = 0;
 		if (t_showHeatmap)
 		{
-			m_rgb[2] = 255 - 255 * m_cost / (m_highestCost * 1.5f); //multiplier for the highest cost for heatmap colour
+			m_rgb[2] = 255 - (255 * m_cost / (m_highestCost * 1.5f)); //multiplier for the highest cost for heatmap colour
 		}
 		else
 		{
@@ -171,7 +171,7 @@ void GridTile::setToPath()
 void GridTile::setHeuristic(sf::Vector2f t_pos)
 {
 	float heuristic = thor::length(m_pos - t_pos);
-	m_heuristic = std::abs(heuristic);
+	m_heuristic = heuristic;
 }
 
 float GridTile::getHeuristic()

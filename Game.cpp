@@ -18,10 +18,8 @@ Game::Game() :
 
 	//setup tooltip text
 	m_tooltipText.setFont(m_font);
-	m_tooltipText.setFillColor(sf::Color::Black);
-	m_tooltipText.setCharacterSize((int)(m_window.getSize().x / 62));
-	m_tooltipText.setString("Press LMB to place Goal\nPress RMB to place Start Tiles\nPress/Hold MMB to place Obstacles\nPress Space to toggle between place/remove using MMB\nPress 1 to display cost values\nPress 2 to disable heatmap\nPress 3 to show flow fields\nPress 4 to remove Goal tile\nPress R reset the grid");
-	m_tooltipText.setPosition(sf::Vector2f(0, 0));
+	m_tooltipText.setFillColor(sf::Color::White);
+	m_tooltipText.setString("Mouse controls:\n\nPress LMB to place Goal\n\nPress RMB to place Start Tiles\n\nPress/hold MMB to place Obstacles\n\n\nKeyboard controls:\n\nPress SPACE to toggle between\nplace/remove using MMB\n\nPress 1 to display cost values\n\nPress 2 to disable heatmap\n\nPress 3 to show flow fields\n\nPress 4 to remove Goal tile\n\nPress R reset the grid");
 
 	int width = sf::VideoMode::getDesktopMode().width - 50;
 	int height = sf::VideoMode::getDesktopMode().height - 50;
@@ -35,18 +33,23 @@ Game::Game() :
 	{
 		windowSize = 50 * std::ceil(width / 50);
 	}
+	windowSize = 1000;
+	m_tooltipText.setCharacterSize((int)(windowSize / 62));
+	float outlineThiccness = thor::length(sf::Vector2f(m_tooltipText.getGlobalBounds().width, windowSize)) * 0.01f;
+	m_textBackground.setSize(sf::Vector2f(m_tooltipText.getGlobalBounds().width + outlineThiccness, windowSize));
 
-	m_window.create(sf::VideoMode{ windowSize + 200, windowSize, 32U }, "SFML Game", sf::Style::Titlebar | sf::Style::Close);
+	m_window.create(sf::VideoMode{ windowSize + (unsigned int)m_tooltipText.getGlobalBounds().width + (unsigned int)outlineThiccness, windowSize, 32U }, "Brushfire Algorithm", sf::Style::Titlebar | sf::Style::Close);
 	m_window.setPosition(sf::Vector2i(sf::VideoMode::getDesktopMode().width / 2 - m_window.getSize().x / 2, 0));
 
-	m_textBackground.setSize(sf::Vector2f(200, m_window.getSize().y));
+
 	m_textBackground.setFillColor(sf::Color(0, 0, 102));
+	m_textBackground.setOutlineColor(sf::Color(255, 140, 0));
+	m_textBackground.setOutlineThickness(-outlineThiccness);
 	m_textBackground.setPosition(m_window.getSize().y, 0);
-
-
+	m_tooltipText.setPosition(m_textBackground.getPosition().x + outlineThiccness, m_textBackground.getPosition().y + outlineThiccness);
 
 	std::cout << "Starting Grid init" << std::endl;
-	m_grid.init();
+	m_grid.init(m_textBackground.getPosition().x + m_textBackground.getSize().x / 2.0f);
 	std::cout << "Finished Grid init" << std::endl;
 }
 

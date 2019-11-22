@@ -6,6 +6,8 @@ GridManager::GridManager(sf::Font& t_font, sf::RenderWindow& t_window) :
 	m_font(t_font),
 	m_window(t_window)
 {
+	m_placeString = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nPLACE MODE";
+	m_deleteString = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDELETE MODE";
 }
 
 GridManager::~GridManager()
@@ -14,6 +16,7 @@ GridManager::~GridManager()
 
 void GridManager::render()
 {
+	m_window.draw(m_placeModeTxt);
 	for (int i = 0; i < m_grid.size(); i++)
 	{
 		m_grid[i].render(m_window, m_showCost, m_showHeatmap);
@@ -46,6 +49,26 @@ void GridManager::handleKeyboard()
 	{
 		m_spacePressed = true;
 		m_deleteMode = !m_deleteMode;
+		if (m_deleteMode)
+		{
+			float newOffset = m_placeModeTxt.getGlobalBounds().width;
+			m_placeModeTxt.setFillColor(sf::Color::Red);
+			m_placeModeTxt.setString(m_deleteString);
+
+			newOffset = newOffset - m_placeModeTxt.getGlobalBounds().width;
+			newOffset /= 2;
+			m_placeModeTxt.setPosition(m_placeModeTxt.getPosition().x + newOffset, m_placeModeTxt.getPosition().y);
+		}
+		else
+		{
+			float newOffset = m_placeModeTxt.getGlobalBounds().width;
+			m_placeModeTxt.setFillColor(sf::Color::Green);
+			m_placeModeTxt.setString(m_placeString);
+
+			newOffset = newOffset - m_placeModeTxt.getGlobalBounds().width;
+			newOffset /= 2;
+			m_placeModeTxt.setPosition(m_placeModeTxt.getPosition().x + newOffset, m_placeModeTxt.getPosition().y);
+		}
 	}
 	else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 	{
@@ -405,7 +428,7 @@ int GridManager::getTileIndex(sf::Vector2i t_mousePos)
 
 void GridManager::doBrushfireCalc(int t_currentTileIndex)
 {
-	std::cout << "Brushfire for GOAL" << std::endl;
+	//std::cout << "Brushfire for GOAL" << std::endl;
 	std::vector<int> neighbours;
 	m_highestCost = 0;
 
@@ -458,7 +481,7 @@ void GridManager::doBrushfireCalc(int t_currentTileIndex)
 
 void GridManager::doBrushfireForNeighbours(std::vector<int>& t_neighbours)
 {
-	std::cout << "    Brushfire for NEIGHBOURS" << std::endl;
+	//std::cout << "    Brushfire for NEIGHBOURS" << std::endl;
 
 	while (t_neighbours.size() > 0)
 	{
@@ -546,7 +569,7 @@ void GridManager::doBrushfireForNeighbours(std::vector<int>& t_neighbours)
 		//remove old/already set neigbours from the vector
 		t_neighbours.erase(t_neighbours.begin(), t_neighbours.begin() + startSize);
 	}
-	std::cout << "        Finished calculation Brushfire" << std::endl;
+	//std::cout << "        Finished calculation Brushfire" << std::endl;
 
 	//Debug cout
 	//std::cout << "Highest cost tile: " << m_highestCost << std::endl;
@@ -557,7 +580,7 @@ void GridManager::update()
 	handleInput();
 }
 
-void GridManager::init()
+void GridManager::init(float t_textOffset)
 {
 	//use height of the window to make squares as the right side of the screen is used for tooltip info
 	m_tileSize.x = m_window.getSize().y / 50.0f;
@@ -572,4 +595,10 @@ void GridManager::init()
 			m_grid.push_back(tile);
 		}
 	}
+
+	m_placeModeTxt.setFont(m_font);
+	m_placeModeTxt.setString(m_placeString);
+	m_placeModeTxt.setCharacterSize((int)(m_window.getSize().y / 31));
+	m_placeModeTxt.setPosition(t_textOffset - m_placeModeTxt.getGlobalBounds().width / 2.0f, 0);
+	m_placeModeTxt.setFillColor(sf::Color::Green);
 }
