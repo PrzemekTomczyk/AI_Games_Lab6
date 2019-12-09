@@ -18,7 +18,7 @@ GridTile::GridTile(sf::Vector2f t_pos, sf::Font& t_font, int& t_highestCost, sf:
 	//setup vector flow line
 	m_vecFieldLine.setSize(sf::Vector2f(t_size.x, 2));
 	m_vecFieldLine.setOrigin(0, 1);
-	m_vecFieldLine.setFillColor(sf::Color::Yellow);
+	m_vecFieldLine.setFillColor(sf::Color::White);
 	m_vecFieldLine.setPosition(m_pos);
 
 	//setup tooltip text
