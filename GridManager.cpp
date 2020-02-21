@@ -25,13 +25,12 @@ void GridManager::render()
 	{
 		for (int i = 0; i < m_grid.size(); i++)
 		{
-			if (i != m_goalIndex && m_grid[i].getType() != GridTile::TileType::Obstacle)
+			if (m_grid[i].getType() != GridTile::TileType::Obstacle && m_grid[i].getType() != GridTile::TileType::Goal)
 			{
 				m_window.draw(m_grid[i].getVectorLine());
 			}
 		}
 	}
-
 }
 
 void GridManager::handleInput()
@@ -108,11 +107,15 @@ void GridManager::handleKeyboard()
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num4) && !m_numFourPressed)
 	{
 		m_numFourPressed = true;
-		if (m_goalIndex != -1)
+		if (!m_goalIndexes.empty())
 		{
-			m_grid[m_goalIndex].reset();
+			//m_grid[m_goalIndex].reset();
+			for (auto& index : m_goalIndexes)
+			{
+				m_grid.at(index).reset();
+			}
 			resetNonObstacleCosts();
-			m_goalIndex = -1;
+			m_goalIndexes.clear();
 		}
 	}
 	else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Num4))
@@ -158,9 +161,9 @@ void GridManager::handleMouse()
 		{
 			m_gridUpdateRequired = false;
 			resetNonObstacleCosts();
-			if (m_goalIndex >= 0)
+			if (!m_goalIndexes.empty())
 			{
-				doBrushfireCalc(m_goalIndex);
+				doBrushfireCalc(m_goalIndexes);
 			}
 		}
 	}
@@ -177,9 +180,9 @@ void GridManager::handleMouse()
 		{
 			m_gridUpdateRequired = false;
 			resetNonObstacleCosts();
-			if (m_goalIndex >= 0)
+			if (!m_goalIndexes.empty())
 			{
-				doBrushfireCalc(m_goalIndex);
+				doBrushfireCalc(m_goalIndexes);
 			}
 		}
 	}
@@ -191,16 +194,31 @@ void GridManager::handleLeftClick(sf::Vector2i t_mousePos)
 	checkIfStartRemoved(tileIndex);
 	m_grid[tileIndex].reset();
 
-	if (m_goalIndex > -1)
+	//if (!m_goalIndexes.empty())
+	//{
+	//	for (auto& index : m_goalIndexes)
+	//	{
+	//		m_grid.at(index).reset();
+	//	}
+	//	//m_grid[m_goalIndex].reset();
+	//}
+	bool pushBack = true;
+	for (auto& index : m_goalIndexes)
 	{
-		m_grid[m_goalIndex].reset();
+		if (index == tileIndex)
+		{
+			pushBack = false;
+		}
 	}
+	if (pushBack)
+	{
+		m_grid[tileIndex].setToGoal();
+		m_goalIndexes.push_back(tileIndex);
+		//m_goalIndex = tileIndex;
 
-	m_grid[tileIndex].setToGoal();
-	m_goalIndex = tileIndex;
-
-	resetNonObstacleCosts();
-	doBrushfireCalc(m_goalIndex);
+		resetNonObstacleCosts();
+		doBrushfireCalc(m_goalIndexes);
+	}
 }
 
 void GridManager::handleRightClick(sf::Vector2i t_mousePos)
@@ -210,11 +228,11 @@ void GridManager::handleRightClick(sf::Vector2i t_mousePos)
 	if (m_grid[tileIndex].getType() != GridTile::TileType::Goal)
 	{
 		//change 0 to the cost of the start node after calculations
-		if (m_grid[tileIndex].getType() == GridTile::TileType::Obstacle && m_goalIndex > -1)
+		if (m_grid[tileIndex].getType() == GridTile::TileType::Obstacle && !m_goalIndexes.empty())
 		{
 			m_gridUpdateRequired = true;
 		}
-		else if (m_goalIndex > -1)
+		else if (!m_goalIndexes.empty())
 		{
 			findAndSetPath(tileIndex);
 		}
@@ -240,7 +258,7 @@ void GridManager::handleMiddleClick(sf::Vector2i t_mousePos)
 		m_grid[tileIndex].setToObstacle();
 
 		//if goal is set
-		if (m_goalIndex >= 0 && m_grid[tileIndex].getType() != GridTile::TileType::Unreachable)
+		if (!m_goalIndexes.empty() && m_grid[tileIndex].getType() != GridTile::TileType::Unreachable)
 		{
 			m_gridUpdateRequired = true;
 		}
@@ -253,7 +271,7 @@ void GridManager::handleMiddleClick(sf::Vector2i t_mousePos)
 
 void GridManager::resetGrid()
 {
-	m_goalIndex = -1;
+	m_goalIndexes.clear();
 	m_startIndexes.clear();
 
 	for (int i = 0; i < m_grid.size(); i++)
@@ -426,38 +444,53 @@ int GridManager::getTileIndex(sf::Vector2i t_mousePos)
 	return  col + (row * TILES_PER_ROW);
 }
 
-void GridManager::doBrushfireCalc(int t_currentTileIndex)
+void GridManager::doBrushfireCalc(std::vector<int>& m_goals)
 {
 	//std::cout << "Brushfire for GOAL" << std::endl;
 	std::vector<int> neighbours;
 	m_highestCost = 0;
+	int currentTile;
 
-	for (int k = 0; k < 8; k++)
+	for (auto& goalIndex : m_goalIndexes)
 	{
-		int neighbourIndex = getNeighbourIndex(k, t_currentTileIndex);
-
-		//check if neighbbourIndex is within vector bounds and that the tile has unset cost
-		if (neighbourIndex < m_grid.size() && neighbourIndex >= 0 && m_grid[neighbourIndex].getCost() == -1)
+		currentTile = goalIndex;
+		for (int k = 0; k < 8; k++)
 		{
-			//check that the tile[neighbourIndex] is a neighbouring tile and not on the other side of the screen
-			if (thor::length(m_grid[t_currentTileIndex].getPos() - m_grid[neighbourIndex].getPos()) <= (m_grid[0].getDiagonal() * 1.1f))
+			int neighbourIndex = getNeighbourIndex(k, currentTile);
+
+			//check if neighbbourIndex is within vector bounds and that the tile has unset cost
+			if (neighbourIndex < m_grid.size() && neighbourIndex >= 0 && m_grid[neighbourIndex].getCost() == -1)
 			{
-				neighbours.push_back(neighbourIndex);
+				//check that the tile[neighbourIndex] is a neighbouring tile and not on the other side of the screen
+				if (thor::length(m_grid[currentTile].getPos() - m_grid[neighbourIndex].getPos()) <= (m_grid[0].getDiagonal() * 1.1f))
+				{
+					neighbours.push_back(neighbourIndex);
+				}
 			}
 		}
 	}
 
 	for (int i = 0; i < neighbours.size(); i++)
 	{
-		m_grid[neighbours[i]].setCost(m_grid[t_currentTileIndex].getCost() + 1);
-		m_grid[neighbours[i]].setHeuristic(m_grid[m_goalIndex].getPos());
-
-		if (m_highestCost < m_grid[t_currentTileIndex].getCost() + 1)
+		m_grid[neighbours[i]].setCost(m_grid[currentTile].getCost() + 1);
+		int closestGoalIndex = -1;
+		float distance = std::numeric_limits<float>().max();
+		for (int i = 0; i < m_goalIndexes.size(); i++)
 		{
-			m_highestCost = m_grid[t_currentTileIndex].getCost() + 1;
+			if (thor::length(m_grid.at(m_goalIndexes[i]).getPos() - m_grid.at(neighbours[i]).getPos()) < distance)
+			{
+				distance = thor::length(m_grid.at(m_goalIndexes[i]).getPos() - m_grid.at(neighbours[i]).getPos());
+				closestGoalIndex = m_goalIndexes[i];
+			}
+		}
+		m_grid[neighbours[i]].setHeuristic(m_grid[closestGoalIndex].getPos());
+
+		if (m_highestCost < m_grid[currentTile].getCost() + 1)
+		{
+			m_highestCost = m_grid[currentTile].getCost() + 1;
 		}
 
-		m_grid[neighbours[i]].setFlowField(m_grid[t_currentTileIndex].getPos());
+		//m_grid[neighbours[i]].setFlowField(m_grid[currentTile].getPos());
 	}
 
 	if (neighbours.size() > 0)
@@ -522,7 +555,18 @@ void GridManager::doBrushfireForNeighbours(std::vector<int>& t_neighbours)
 				//set up cost
 				m_grid[t_neighbours[j]].setCost(m_grid[t_neighbours[i]].getCost() + 1);
 				//set up heuristic
-				m_grid[t_neighbours[j]].setHeuristic(m_grid[m_goalIndex].getPos());
+				int closestGoalIndex = -1;
+				float distance = std::numeric_limits<float>().max();
+				for (int i = 0; i < m_goalIndexes.size(); i++)
+				{
+					if (thor::length(m_grid.at(m_goalIndexes[i]).getPos() - m_grid.at(t_neighbours[j]).getPos()) < distance)
+					{
+						distance = thor::length(m_grid.at(m_goalIndexes[i]).getPos() - m_grid.at(t_neighbours[j]).getPos());
+						closestGoalIndex = m_goalIndexes[i];
+					}
+				}
+
+				m_grid[t_neighbours[j]].setHeuristic(m_grid[closestGoalIndex].getPos());
 
 				//if this newly added neighbour has the highest cost in the grid, update highest cost
 				if (m_highestCost < m_grid[t_neighbours[i]].getCost() + 1)

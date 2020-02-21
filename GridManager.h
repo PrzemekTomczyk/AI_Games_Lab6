@@ -19,7 +19,7 @@ private:
 	void handleRightClick(sf::Vector2i t_mousePos);
 	void handleMiddleClick(sf::Vector2i t_mousePos);
 	void resetGrid();
-	void doBrushfireCalc(int t_currentTileIndex);
+	void doBrushfireCalc(std::vector<int>& m_goals);
 	void doBrushfireForNeighbours(std::vector<int>& t_neighbours);
 	void resetNonObstacleCosts();
 	void findAndSetPath(int t_startIndex);
@@ -31,6 +31,7 @@ private:
 	std::vector<GridTile> m_grid;	
 	sf::Vector2f m_tileSize;
 	std::vector<int> m_startIndexes;
+	std::vector<int> m_goalIndexes;
 
 	//references
 	sf::Font& m_font;
@@ -65,7 +66,7 @@ private:
 	bool m_deleteMode = false;
 
 	//ints
-	int m_goalIndex = -1;
+	//int m_goalIndex = -1;
 	int m_highestCost = -1;
 };
 
