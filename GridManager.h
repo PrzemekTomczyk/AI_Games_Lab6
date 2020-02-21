@@ -43,9 +43,9 @@ private:
 	std::string m_deleteString;
 
 	//consts
-	const int MAX_TILES = 2500;
-	const int TILES_PER_ROW = 50;
-	const int NO_OF_COLS = 50;
+	const int MAX_TILES = 10000;
+	const int TILES_PER_ROW = 100;
+	const int NO_OF_COLS = 100;
 
 	//bools
 	bool m_leftBtn = false;
@@ -64,6 +64,9 @@ private:
 	bool m_showHeatmap = true;
 	bool m_spacePressed = false;
 	bool m_deleteMode = false;
+
+	bool m_left = false, m_right = false, m_up = false, m_down = false;
+	bool moved = false;
 
 	//ints
 	//int m_goalIndex = -1;

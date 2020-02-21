@@ -27,11 +27,11 @@ Game::Game() :
 
 	if (height < width)
 	{
-		windowSize = 50 * std::ceil(height / 50);
+		windowSize = 100 * std::ceil(height / 100);
 	}
 	else
 	{
-		windowSize = 50 * std::ceil(width / 50);
+		windowSize = 100 * std::ceil(width / 100);
 	}
 	m_tooltipText.setCharacterSize((int)(windowSize / 62));
 	float outlineThiccness = thor::length(sf::Vector2f(m_tooltipText.getGlobalBounds().width, windowSize)) * 0.01f;

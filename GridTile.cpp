@@ -46,6 +46,24 @@ void GridTile::init(int t_cost, int t_rgb[3])
 
 void GridTile::render(sf::RenderWindow& t_window, bool t_showCost, bool t_showHeatmap)
 {
+	switch (m_type)
+	{
+	case GridTile::TileType::Start:
+		break;
+	case GridTile::TileType::Goal:
+		break;
+	case GridTile::TileType::Obstacle:
+		break;
+	case GridTile::TileType::None:
+		return;
+	case GridTile::TileType::Unreachable:
+		return;
+	case GridTile::TileType::Path:
+		break;
+	default:
+		break;
+	}
+
 	if (m_cost == -1)
 	{
 		m_vecFieldLine.setSize(sf::Vector2f(0, 0));
